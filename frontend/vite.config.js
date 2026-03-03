@@ -7,7 +7,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/inventory': 'http://localhost:8000',
-      '/auth': 'http://localhost:8000',
+      '/auth':      'http://localhost:8000',
+      '/predict':   'http://localhost:8000',
     },
   },
 })
