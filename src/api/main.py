@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.api.routes import predict, items, report, intake, auth, inventory, summary
+from src.api.routes import predict, items, report, intake, auth, inventory, summary, report_charts
 
 app = FastAPI(
     title="Inventory Waste Predictor API",
@@ -23,6 +23,7 @@ app.include_router(report.router, prefix="/report", tags=["Report"])
 app.include_router(intake.router, prefix="/inventory/intake", tags=["Intake"])
 app.include_router(inventory.router, prefix="/inventory/list", tags=["Inventory"])
 app.include_router(summary.router, prefix="/inventory/summary", tags=["Summary"])
+app.include_router(report_charts.router, prefix="/inventory/report", tags=["Reports"])
 
 
 @app.get("/health")

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ReportSection from './ReportSection'
 
 const RESTAURANT_ID = 'R001'
 
@@ -274,6 +275,9 @@ export default function MonthlySummary() {
           </div>
         )}
       </div>
+
+      {/* Reports */}
+      <ReportSection />
 
       {/* Legend */}
       <div className="flex items-center gap-6 text-xs text-slate-500">
