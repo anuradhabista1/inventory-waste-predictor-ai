@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "LOZ6TWpBgAo=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\u60931\\Documents\\inventory-waste-predictor-ai\\backend-dotnet\\src\\InventoryWastePredictor.Api\\InventoryWastePredictor.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\u60931\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.0\\microsoft.aspnetcore.openapi.10.0.0.nupkg.sha512",
+    "C:\\Users\\u60931\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
