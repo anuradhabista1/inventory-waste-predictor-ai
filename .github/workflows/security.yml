@@ -1,0 +1,92 @@
+name: Security Scan
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'fix/**'
+      - 'refactor/**'
+  pull_request:
+    branches: [main]
+
+jobs:
+  python-dependency-scan:
+    name: Python Dependency Audit (pip-audit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Audit Python dependencies
+        run: pip-audit -r requirements.txt --format markdown >> $GITHUB_STEP_SUMMARY
+
+  python-static-analysis:
+    name: Python Static Security Analysis (bandit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bandit
+        run: pip install bandit
+
+      - name: Run bandit
+        run: |
+          bandit -r src/ \
+            --severity-level medium \
+            --confidence-level medium \
+            --format txt \
+            --exit-zero \
+            | tee bandit-report.txt
+          echo "### Bandit Security Report" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat bandit-report.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.txt
+
+  frontend-dependency-scan:
+    name: Frontend Dependency Audit (npm audit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Audit frontend dependencies
+        working-directory: frontend
+        run: |
+          npm audit --audit-level=moderate --json > npm-audit.json || true
+          echo "### npm Audit Report" >> $GITHUB_STEP_SUMMARY
+          npm audit --audit-level=moderate 2>&1 | tee npm-audit.txt >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Upload npm audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: frontend/npm-audit.json
