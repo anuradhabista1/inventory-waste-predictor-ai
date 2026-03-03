@@ -29,20 +29,20 @@ class SummaryResponse(BaseModel):
 
 
 class ConsumptionEntry(BaseModel):
-    item_id: str
+    item_id:        str = Field(max_length=50)
     units_consumed: int = Field(ge=0)
 
 
 class SaveConsumptionRequest(BaseModel):
-    restaurant_id: str
-    month: str = Field(pattern=r"^\d{4}-\d{2}$")
-    entries: list[ConsumptionEntry] = Field(min_length=1)
+    restaurant_id: str = Field(max_length=50)
+    month:         str = Field(pattern=r"^\d{4}-\d{2}$")
+    entries:       list[ConsumptionEntry] = Field(min_length=1)
 
 
 @router.get("/", response_model=SummaryResponse)
 def monthly_summary(
-    restaurant_id: str = Query(...),
-    month: str = Query(..., pattern=r"^\d{4}-\d{2}$"),
+    restaurant_id: str = Query(..., max_length=50),
+    month:         str = Query(..., pattern=r"^\d{4}-\d{2}$"),
     user=Depends(require_auth),
 ):
     return get_monthly_summary(restaurant_id, month)
