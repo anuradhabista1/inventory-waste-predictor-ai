@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.api.routes import predict, items, report
+from src.api.routes import predict, items, report, intake
 
 app = FastAPI(
     title="Inventory Waste Predictor API",
@@ -10,6 +10,7 @@ app = FastAPI(
 app.include_router(predict.router, prefix="/predict", tags=["Prediction"])
 app.include_router(items.router, prefix="/items", tags=["Items"])
 app.include_router(report.router, prefix="/report", tags=["Report"])
+app.include_router(intake.router, prefix="/inventory/intake", tags=["Intake"])
 
 
 @app.get("/health")
