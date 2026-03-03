@@ -23,17 +23,17 @@ class IntakeResponse(BaseModel):
 
 
 class SubmitItem(BaseModel):
-    item_id: str
-    name: str
-    category: str
-    units: int = Field(gt=0)
+    item_id:  str = Field(max_length=50)
+    name:     str = Field(max_length=100)
+    category: str = Field(max_length=50)
+    units:    int = Field(gt=0)
 
 
 class SubmitIntakeRequest(BaseModel):
-    restaurant_id: str
-    month: str = Field(pattern=r"^\d{4}-\d{2}$")
+    restaurant_id: str = Field(max_length=50)
+    month:         str = Field(pattern=r"^\d{4}-\d{2}$")
     delivery_date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
-    items: list[SubmitItem] = Field(min_length=1)
+    items:         list[SubmitItem] = Field(min_length=1)
 
 
 class SubmitIntakeResponse(BaseModel):
@@ -47,8 +47,8 @@ class SubmitIntakeResponse(BaseModel):
 
 @router.get("/", response_model=IntakeResponse, dependencies=[Depends(require_auth)])
 def monthly_intake(
-    restaurant_id: str = Query(..., description="Restaurant identifier"),
-    month: str = Query(..., description="Month in YYYY-MM format", pattern=r"^\d{4}-\d{2}$"),
+    restaurant_id: str = Query(..., max_length=50),
+    month: str = Query(..., pattern=r"^\d{4}-\d{2}$"),
 ):
     try:
         return get_monthly_intake(restaurant_id, month)
