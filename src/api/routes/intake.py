@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+from src.api.dependencies import require_auth, require_role
 from src.services.intake_service import get_monthly_intake, add_intake_records
 
 router = APIRouter()
@@ -44,7 +45,7 @@ class SubmitIntakeResponse(BaseModel):
     total_units: int
 
 
-@router.get("/", response_model=IntakeResponse)
+@router.get("/", response_model=IntakeResponse, dependencies=[Depends(require_auth)])
 def monthly_intake(
     restaurant_id: str = Query(..., description="Restaurant identifier"),
     month: str = Query(..., description="Month in YYYY-MM format", pattern=r"^\d{4}-\d{2}$"),
@@ -55,7 +56,7 @@ def monthly_intake(
         raise HTTPException(status_code=422, detail=str(e))
 
 
-@router.post("/", response_model=SubmitIntakeResponse)
+@router.post("/", response_model=SubmitIntakeResponse, dependencies=[Depends(require_role("Manager"))])
 def submit_intake(body: SubmitIntakeRequest):
     if not body.delivery_date.startswith(body.month):
         raise HTTPException(

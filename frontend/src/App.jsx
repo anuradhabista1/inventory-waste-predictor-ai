@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import LoginPage from './components/LoginPage'
 import IntakeForm from './components/IntakeForm'
+import InventoryList from './components/InventoryList'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function Header() {
@@ -44,6 +45,13 @@ function Layout({ children }) {
   )
 }
 
+function ManagerRoute({ children }) {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/login" replace />
+  if (user.role !== 'Manager') return <Navigate to="/" replace />
+  return children
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -54,10 +62,16 @@ export default function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <IntakeForm />
-                </Layout>
+                <Layout><InventoryList /></Layout>
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/intake"
+            element={
+              <ManagerRoute>
+                <Layout><IntakeForm /></Layout>
+              </ManagerRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
