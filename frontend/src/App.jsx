@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import LoginPage from './components/LoginPage'
 import IntakeForm from './components/IntakeForm'
 import InventoryList from './components/InventoryList'
+import MonthlySummary from './components/MonthlySummary'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function Header() {
@@ -72,6 +73,14 @@ export default function App() {
               <ManagerRoute>
                 <Layout><IntakeForm /></Layout>
               </ManagerRoute>
+            }
+          />
+          <Route
+            path="/summary"
+            element={
+              <ProtectedRoute>
+                <Layout><MonthlySummary /></Layout>
+              </ProtectedRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
