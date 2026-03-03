@@ -8,4 +8,3 @@ router = APIRouter()
 def waste_report():
     # TODO: return aggregated waste risk report
     return {"report": {}}
-
