@@ -72,6 +72,40 @@ def get_monthly_intake(restaurant_id: str, month: str) -> dict:
     }
 
 
+def get_inventory_by_date(restaurant_id: str, from_date: str, to_date: str) -> dict:
+    """
+    Return all inventory records for a restaurant between from_date and to_date (inclusive).
+    """
+    records = [
+        r for r in _INTAKE_RECORDS
+        if r["restaurant_id"] == restaurant_id
+        and from_date <= r["delivery_date"] <= to_date
+    ]
+    items = sorted(records, key=lambda x: x["delivery_date"])
+    return {
+        "restaurant_id": restaurant_id,
+        "from": from_date,
+        "to": to_date,
+        "total_items": len(items),
+        "total_units": sum(r["units"] for r in items),
+        "items": items,
+    }
+
+
+def update_intake_record(restaurant_id: str, item_id: str, delivery_date: str, updates: dict) -> bool:
+    """
+    Update an existing record matching restaurant_id + item_id + delivery_date.
+    Returns True if found and updated, False otherwise.
+    """
+    for record in _INTAKE_RECORDS:
+        if (record["restaurant_id"] == restaurant_id
+                and record["item_id"] == item_id
+                and record["delivery_date"] == delivery_date):
+            record.update(updates)
+            return True
+    return False
+
+
 def add_intake_records(body) -> None:
     """
     Append submitted intake items to the in-memory store.
