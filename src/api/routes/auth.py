@@ -1,8 +1,11 @@
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Request
 from pydantic import BaseModel
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from src.services.auth_service import login, get_current_user, logout
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 class LoginRequest(BaseModel):
@@ -22,7 +25,8 @@ class UserResponse(BaseModel):
 
 
 @router.post("/login", response_model=AuthResponse)
-def auth_login(body: LoginRequest):
+@limiter.limit("5/minute")
+def auth_login(request: Request, body: LoginRequest):
     try:
         return login(body.username, body.password)
     except ValueError as e:
