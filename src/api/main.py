@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from src.api.routes import predict, items, report, intake
+from fastapi.middleware.cors import CORSMiddleware
+from src.api.routes import predict, items, report, intake, auth
 
 app = FastAPI(
     title="Inventory Waste Predictor API",
@@ -7,6 +8,15 @@ app = FastAPI(
     version="0.1.0",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(predict.router, prefix="/predict", tags=["Prediction"])
 app.include_router(items.router, prefix="/items", tags=["Items"])
 app.include_router(report.router, prefix="/report", tags=["Report"])
