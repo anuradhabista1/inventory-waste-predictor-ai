@@ -1,8 +1,7 @@
 """
 Monthly inventory intake service.
-Returns all inventory received by a restaurant in a given month.
+Returns and stores inventory received by a restaurant in a given month.
 """
-from datetime import date, timedelta
 from collections import defaultdict
 
 
@@ -71,3 +70,19 @@ def get_monthly_intake(restaurant_id: str, month: str) -> dict:
         "total_units": sum(i["units_received"] for i in intake),
         "intake": intake,
     }
+
+
+def add_intake_records(body) -> None:
+    """
+    Append submitted intake items to the in-memory store.
+    Replace with a DB insert when a real database is wired up.
+    """
+    for item in body.items:
+        _INTAKE_RECORDS.append({
+            "restaurant_id": body.restaurant_id,
+            "item_id": item.item_id,
+            "name": item.name,
+            "category": item.category,
+            "units": item.units,
+            "delivery_date": body.delivery_date,
+        })
