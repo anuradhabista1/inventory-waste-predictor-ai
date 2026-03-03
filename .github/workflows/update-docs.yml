@@ -1,0 +1,48 @@
+name: Update Docs
+
+on:
+  issues:
+    types: [opened, edited]
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'REQUIREMENTS.md'
+      - 'SKILLS.md'
+      - 'CLAUDE.md'
+      - '.github/scripts/**'
+      - '**.md'
+
+jobs:
+  update-docs:
+    name: Auto-update REQUIREMENTS / SKILLS / CLAUDE
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Anthropic SDK
+        run: pip install anthropic
+
+      - name: Run doc updater
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python .github/scripts/update_docs.py
+
+      - name: Commit updated docs
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add REQUIREMENTS.md SKILLS.md CLAUDE.md
+          git diff --staged --quiet && echo "No doc changes to commit." || \
+            git commit -m "docs: auto-update docs for ${{ github.event_name }} [skip ci]" && \
+            git push
