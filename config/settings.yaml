@@ -1,7 +1,7 @@
 app:
   name: Inventory Waste Predictor
   version: 0.1.0
-  debug: true
+  debug: false
 
 api:
   host: 0.0.0.0
