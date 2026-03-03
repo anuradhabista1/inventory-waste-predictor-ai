@@ -59,16 +59,32 @@ export default function InventoryList() {
           <p className="text-sm text-slate-500 mt-0.5">Restaurant {RESTAURANT_ID}</p>
         </div>
         {isManager ? (
-          <button
-            onClick={() => navigate('/intake')}
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
-          >
-            + Add Inventory
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/summary')}
+              className="px-4 py-2.5 text-sm font-semibold text-blue-600 bg-white border border-blue-300 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
+            >
+              📊 Monthly Summary
+            </button>
+            <button
+              onClick={() => navigate('/intake')}
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
+            >
+              + Add Inventory
+            </button>
+          </div>
         ) : (
-          <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2">
-            <span>🔒</span>
-            <span>View-only access — contact a Manager to make changes</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/summary')}
+              className="px-4 py-2.5 text-sm font-semibold text-blue-600 bg-white border border-blue-300 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
+            >
+              📊 Monthly Summary
+            </button>
+            <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2">
+              <span>🔒</span>
+              <span>View-only access</span>
+            </div>
           </div>
         )}
       </div>
