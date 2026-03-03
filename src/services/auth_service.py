@@ -6,7 +6,7 @@ import uuid
 # User store: extend this dict to add more users/roles
 USERS = {
     "Admin":  {"password": "admin",  "role": "Manager"},
-    "Viewer": {"password": "viewer", "role": "Viewer"},
+    "Viewer": {"password": "viewer", "role": "User"},
 }
 
 # In-memory token store: { token: { username, role } }
