@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from src.api.dependencies import require_auth
 from src.services.predictor import predict_waste
 
 router = APIRouter()
@@ -21,6 +22,6 @@ class PredictResponse(BaseModel):
     recommendation: str
 
 
-@router.post("/", response_model=PredictResponse)
+@router.post("/", response_model=PredictResponse, dependencies=[Depends(require_auth)])
 def predict(request: PredictRequest):
     return predict_waste(request)
