@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InventoryWastePredictor.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b90879ed5f7dc333a1f8ec088f85233e4f9c3c0b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9974dd4284483173ce5468b89344a743f3ddd4e2")]
 [assembly: System.Reflection.AssemblyProductAttribute("InventoryWastePredictor.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InventoryWastePredictor.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
