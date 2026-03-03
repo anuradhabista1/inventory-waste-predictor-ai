@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from src.api.dependencies import require_auth, require_role
 from src.services.intake_service import get_inventory_by_date, update_intake_record
 
@@ -24,16 +24,16 @@ class InventoryListResponse(BaseModel):
 
 
 class EditItemRequest(BaseModel):
-    name: str
-    category: str
-    units: int
+    name:     str = Field(max_length=100)
+    category: str = Field(max_length=50)
+    units:    int = Field(gt=0)
 
 
 @router.get("/", response_model=InventoryListResponse)
 def list_inventory(
-    restaurant_id: str = Query(...),
+    restaurant_id: str = Query(..., max_length=50),
     from_date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
-    to_date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    to_date:   str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
     user=Depends(require_auth),
 ):
     data = get_inventory_by_date(restaurant_id, from_date, to_date)
@@ -51,7 +51,7 @@ def list_inventory(
 def edit_inventory_item(
     item_id: str,
     body: EditItemRequest,
-    restaurant_id: str = Query(...),
+    restaurant_id: str = Query(..., max_length=50),
     delivery_date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
 ):
     updated = update_intake_record(
@@ -59,6 +59,5 @@ def edit_inventory_item(
         {"name": body.name, "category": body.category, "units": body.units},
     )
     if not updated:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Record not found.")
     return {"message": "Record updated successfully."}
