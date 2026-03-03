@@ -9,5 +9,7 @@ plotly>=5.20.0
 pydantic>=2.6.0
 pyyaml>=6.0.1
 python-dotenv>=1.0.0
+bcrypt>=4.1.0
+slowapi>=0.1.9
 pytest>=8.0.0
 httpx>=0.27.0
