@@ -2,7 +2,8 @@
 Report service — historical bought vs consumed trends and AI consumption forecast.
 Uses weighted moving average for forecasting (upgradeable to Prophet/XGBoost).
 """
-from datetime import date, timedelta
+import hashlib
+from datetime import date
 from src.services.intake_service import _INTAKE_RECORDS
 from src.services.summary_service import _CONSUMPTION
 
@@ -12,8 +13,6 @@ def _month_range(n: int) -> list[str]:
     today = date.today()
     months = []
     for i in range(n - 1, -1, -1):
-        # Step back i months from current month
-        month_date = date(today.year, today.month, 1)
         total_months = today.month - 1 - i
         year = today.year + total_months // 12
         month = total_months % 12 + 1
@@ -34,8 +33,12 @@ def _next_month(m: str) -> str:
     return f"{y:04d}-{mo:02d}"
 
 
+def _stable_hash(key: str) -> int:
+    """Return a stable integer hash using MD5 (not affected by PYTHONHASHSEED)."""
+    return int(hashlib.md5(key.encode()).hexdigest(), 16)
+
+
 def _purchased_for_month(restaurant_id: str, month: str) -> dict[str, int]:
-    """Sum purchased units per item_id for a given month."""
     totals: dict[str, int] = {}
     for r in _INTAKE_RECORDS:
         if r["restaurant_id"] == restaurant_id and r["delivery_date"].startswith(month):
@@ -44,7 +47,6 @@ def _purchased_for_month(restaurant_id: str, month: str) -> dict[str, int]:
 
 
 def _item_meta(restaurant_id: str) -> dict[str, dict]:
-    """Build item_id → { name, category } lookup from intake records."""
     meta: dict[str, dict] = {}
     for r in _INTAKE_RECORDS:
         if r["restaurant_id"] == restaurant_id and r["item_id"] not in meta:
@@ -53,10 +55,6 @@ def _item_meta(restaurant_id: str) -> dict[str, dict]:
 
 
 def _weighted_moving_average(values: list[float], weights: list[float] | None = None) -> float:
-    """
-    Weighted moving average. More recent values get higher weight.
-    Falls back to simple average if fewer than 2 data points.
-    """
     non_zero = [v for v in values if v > 0]
     if not non_zero:
         return 0.0
@@ -72,14 +70,9 @@ def _weighted_moving_average(values: list[float], weights: list[float] | None = 
 
 
 def get_history(restaurant_id: str, months: int = 6) -> dict:
-    """
-    Return last `months` months of purchased and consumed per item.
-    Generates realistic seed data for months without real records.
-    """
     month_labels = _month_range(months)
     meta = _item_meta(restaurant_id)
 
-    # Collect all item_ids that appear in any of the target months
     all_item_ids: set[str] = set()
     monthly_purchased: dict[str, dict[str, int]] = {}
     for m in month_labels:
@@ -94,13 +87,11 @@ def get_history(restaurant_id: str, months: int = 6) -> dict:
         consumed_list = []
         for m in month_labels:
             p = monthly_purchased[m].get(item_id, 0)
-            # Seed purchased for months with no real data using last known value
             if p == 0 and purchased_list:
-                p = int(purchased_list[-1] * (0.95 + hash(item_id + m) % 10 * 0.01))
+                p = int(purchased_list[-1] * (0.95 + _stable_hash(item_id + m) % 10 * 0.01))
             c = _CONSUMPTION.get((restaurant_id, item_id, m), 0)
-            # Seed consumed for months with no real consumption entry
             if c == 0 and p > 0:
-                seed = hash(item_id + m) % 20
+                seed = _stable_hash(item_id + m) % 20
                 c = max(0, int(p * (0.75 + seed * 0.01)))
             purchased_list.append(p)
             consumed_list.append(c)
@@ -121,21 +112,16 @@ def get_history(restaurant_id: str, months: int = 6) -> dict:
 
 
 def get_forecast(restaurant_id: str) -> dict:
-    """
-    Forecast next month's consumption per item using weighted moving average
-    of the last 6 months. Returns predicted value with confidence range.
-    """
     history = get_history(restaurant_id, months=6)
     current_month = history["months"][-1]
     forecast_month = _next_month(current_month)
 
     forecasts = []
-    weights = [1, 1, 2, 2, 3, 3]   # recent months weighted higher
+    weights = [1, 1, 2, 2, 3, 3]
 
     for s in history["series"]:
         consumed = s["consumed"]
         predicted = _weighted_moving_average(consumed, weights)
-        # Confidence band: ±12% of predicted
         margin = round(predicted * 0.12)
         forecasts.append({
             "item_id": s["item_id"],
